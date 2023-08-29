@@ -26,6 +26,8 @@ extern PyObject* PyInit_atexit(void);
 extern PyObject* _PyWarnings_Init(void);
 extern PyObject* PyInit__string(void);
 extern PyObject* PyInit__tokenize(void);
+extern PyObject* PyInit__thread(void);
+extern PyObject* PyInit__weakref(void);
 
 extern PyObject* PyMarshal_Init(void);
 extern PyObject* PyInit__imp(void);
@@ -39,12 +41,15 @@ struct _inittab _PyImport_Inittab[] = {
     {"_tokenize", PyInit__tokenize},
     {"_tracemalloc", PyInit__tracemalloc},
 
-#if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_SYSTEM) || defined(MS_WINDOWS_GAMES)
-    {"winreg", PyInit_winreg},
-#endif
+//#if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_SYSTEM) || defined(MS_WINDOWS_GAMES)
+//    {"winreg", PyInit_winreg},
+//#endif
 
     /* This module "lives in" with marshal.c */
     {"marshal", PyMarshal_Init},
+	
+    {"_thread", PyInit__thread},
+	{"_weakref", PyInit__weakref},
 
     /* This lives it with import.c */
     {"_imp", PyInit__imp},
@@ -55,7 +60,7 @@ struct _inittab _PyImport_Inittab[] = {
     {"_warnings", _PyWarnings_Init},
     {"_string", PyInit__string},
 
-    {"_io", PyInit__io},
+//    {"_io", PyInit__io},
     {"atexit", PyInit_atexit},
 
     /* Sentinel */

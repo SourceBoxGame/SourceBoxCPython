@@ -18,6 +18,13 @@
 #  include <mach-o/dyld.h>
 #endif
 
+#define VPATH "..\\.."
+#define PLATLIBDIR "DLLs"
+#define PREFIX ((void *)0)
+#define EXEC_PREFIX ((void *)0)
+#define VERSION ((void *)0)
+
+
 /* Reference the precompiled getpath.py */
 #include "../Python/frozen_modules/getpath.h"
 
@@ -852,7 +859,7 @@ _PyConfig_InitPathConfig(PyConfig *config, int compute_path_config)
         Py_DECREF(dict);
         return PyStatus_Error("error reading frozen getpath.py");
     }
-
+/*
 #ifdef MS_WINDOWS
     PyObject *winreg = PyImport_ImportModule("winreg");
     if (!winreg || PyDict_SetItemString(dict, "winreg", winreg) < 0) {
@@ -868,7 +875,7 @@ _PyConfig_InitPathConfig(PyConfig *config, int compute_path_config)
         Py_DECREF(winreg);
     }
 #endif
-
+*/
     if (
 #ifdef MS_WINDOWS
         !decode_to_dict(dict, "os_name", "nt") ||
@@ -901,9 +908,7 @@ _PyConfig_InitPathConfig(PyConfig *config, int compute_path_config)
         !wchar_to_dict(dict, "executable_dir", NULL) ||
         !wchar_to_dict(dict, "py_setpath", _PyPathConfig_GetGlobalModuleSearchPath()) ||
         !funcs_to_dict(dict, config->pathconfig_warnings) ||
-#ifndef MS_WINDOWS
         PyDict_SetItemString(dict, "winreg", Py_None) < 0 ||
-#endif
         PyDict_SetItemString(dict, "__builtins__", PyEval_GetBuiltins()) < 0
     ) {
         Py_DECREF(co);

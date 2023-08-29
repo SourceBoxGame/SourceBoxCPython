@@ -451,6 +451,7 @@ def _load_module_shim(self, fullname):
 # Module specifications #######################################################
 
 def _module_repr(module):
+	raise ValueError(repr(module))
     """The implementation of ModuleType.__repr__()."""
     loader = getattr(module, '__loader__', None)
     if spec := getattr(module, "__spec__", None):

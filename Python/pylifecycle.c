@@ -1116,12 +1116,12 @@ init_interp_main(PyThreadState *tstate)
     if (interpreter_update_config(tstate, 1) < 0) {
         return _PyStatus_ERR("failed to update the Python config");
     }
-
+    /*
     status = _PyImport_InitExternal(tstate);
     if (_PyStatus_EXCEPTION(status)) {
         return status;
     }
-
+    */
     if (is_main_interp) {
         /* initialize the faulthandler module */
         status = _PyFaulthandler_Init(config->faulthandler);
@@ -1130,11 +1130,12 @@ init_interp_main(PyThreadState *tstate)
         }
     }
 
+/*
     status = _PyUnicode_InitEncodings(tstate);
     if (_PyStatus_EXCEPTION(status)) {
         return status;
     }
-
+*/
     if (is_main_interp) {
         if (_PySignal_Init(config->install_signal_handlers) < 0) {
             return _PyStatus_ERR("can't initialize signals");
@@ -1155,12 +1156,12 @@ init_interp_main(PyThreadState *tstate)
         }
 #endif
     }
-
+/*
     status = init_sys_streams(tstate);
     if (_PyStatus_EXCEPTION(status)) {
         return status;
     }
-
+*/
     status = init_set_builtins_open();
     if (_PyStatus_EXCEPTION(status)) {
         return status;
@@ -1186,14 +1187,14 @@ init_interp_main(PyThreadState *tstate)
 
         interp->runtime->initialized = 1;
     }
-
+/*
     if (config->site_import) {
         status = init_import_site();
         if (_PyStatus_EXCEPTION(status)) {
             return status;
         }
     }
-
+*/
     if (is_main_interp) {
 #ifndef MS_WINDOWS
         emit_stderr_warning_for_legacy_locale(interp->runtime);
@@ -2457,17 +2458,18 @@ init_set_builtins_open(void)
     if (!(bimod = PyImport_ImportModule("builtins"))) {
         goto error;
     }
-
+/*
     if (!(wrapper = _PyImport_GetModuleAttrString("io", "open"))) {
         goto error;
-    }
+    }*/
 
     /* Set builtins.open */
-    if (PyObject_SetAttrString(bimod, "open", wrapper) == -1) {
+    /*if (PyObject_SetAttrString(bimod, "open", wrapper) == -1) {
         Py_DECREF(wrapper);
         goto error;
     }
-    Py_DECREF(wrapper);
+    Py_DECREF(wrapper);*/
+
     goto done;
 
 error:

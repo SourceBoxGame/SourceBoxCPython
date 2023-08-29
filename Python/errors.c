@@ -9,7 +9,6 @@
 #include "pycore_structseq.h"     // _PyStructSequence_FiniBuiltin()
 #include "pycore_sysmodule.h"     // _PySys_Audit()
 #include "pycore_traceback.h"     // _PyTraceBack_FromFrame()
-
 #include <ctype.h>
 #ifdef MS_WINDOWS
 #  include <windows.h>
@@ -17,6 +16,7 @@
 #  include <stdlib.h>             // _sys_nerr
 #endif
 
+__declspec(dllimport) void Warning(const char * pMsg, ...);
 
 #ifdef __cplusplus
 extern "C" {
@@ -162,7 +162,7 @@ _PyErr_SetObject(PyThreadState *tstate, PyObject *exception, PyObject *value)
 {
     PyObject *exc_value;
     PyObject *tb = NULL;
-
+    Warning("%s\n",PyBytes_AsString(PyUnicode_AsASCIIString(PyObject_Repr(value))));
     if (exception != NULL &&
         !PyExceptionClass_Check(exception)) {
         _PyErr_Format(tstate, PyExc_SystemError,

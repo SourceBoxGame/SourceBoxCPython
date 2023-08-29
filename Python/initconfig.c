@@ -320,7 +320,7 @@ PyStatus PyStatus_Error(const char *err_msg)
 }
 
 PyStatus PyStatus_NoMemory(void)
-{ return PyStatus_Error("memory allocation failed"); }
+{ __debugbreak(); return PyStatus_Error("memory allocation failed"); }
 
 PyStatus PyStatus_Exit(int exitcode)
 { return _PyStatus_EXIT(exitcode); }

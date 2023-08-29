@@ -33,7 +33,7 @@ import marshal
 _MS_WINDOWS = (sys.platform == 'win32')
 if _MS_WINDOWS:
     import nt as _os
-    import winreg
+#    import winreg
 else:
     import posix as _os
 
@@ -932,25 +932,27 @@ class WindowsRegistryFinder:
 
     @staticmethod
     def _open_registry(key):
-        try:
-            return winreg.OpenKey(winreg.HKEY_CURRENT_USER, key)
-        except OSError:
-            return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key)
+        return None
+#        try:
+#            return winreg.OpenKey(winreg.HKEY_CURRENT_USER, key)
+#        except OSError:
+#            return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key)
 
     @classmethod
     def _search_registry(cls, fullname):
-        if cls.DEBUG_BUILD:
-            registry_key = cls.REGISTRY_KEY_DEBUG
-        else:
-            registry_key = cls.REGISTRY_KEY
-        key = registry_key.format(fullname=fullname,
-                                  sys_version='%d.%d' % sys.version_info[:2])
-        try:
-            with cls._open_registry(key) as hkey:
-                filepath = winreg.QueryValue(hkey, '')
-        except OSError:
-            return None
-        return filepath
+        return None
+#        if cls.DEBUG_BUILD:
+#            registry_key = cls.REGISTRY_KEY_DEBUG
+#        else:
+#            registry_key = cls.REGISTRY_KEY
+#        key = registry_key.format(fullname=fullname,
+#                                  sys_version='%d.%d' % sys.version_info[:2])
+#        try:
+#            with cls._open_registry(key) as hkey:
+#                filepath = winreg.QueryValue(hkey, '')
+#        except OSError:
+#            return None
+#        return filepath
 
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):
