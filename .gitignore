@@ -160,3 +160,8 @@ Python/frozen_modules/MANIFEST
 *.vcxproj
 *.user
 *.filters
+*.vcproj
+Python/python312.vcproj
+SourceBoxCPython.vcxproj
+SourceBoxCPython.vcxproj.filters
+SourceBoxCPython.vcxproj.user
