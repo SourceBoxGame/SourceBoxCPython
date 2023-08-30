@@ -115,6 +115,7 @@ PCbuild/arm32/
 PCbuild/arm64/
 PCbuild/obj/
 PCbuild/win32/
+!PCbuild/win32/_freeze_module.exe
 Tools/unicode/data/
 /autom4te.cache
 /build/
