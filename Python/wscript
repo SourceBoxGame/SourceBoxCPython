@@ -7,6 +7,125 @@ import os
 
 top = '.'
 PROJECT_NAME = 'python312'
+stupid = [["./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"importlib._bootstrap",
+"./SourceBoxCPython/Lib/importlib/_bootstrap.py",
+"./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"importlib._bootstrap_external",
+"./SourceBoxCPython/Lib/importlib/_bootstrap_external.py",
+"./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap_external.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"zipimport",
+"./SourceBoxCPython/Lib/zipimport.py",
+"./SourceBoxCPython/Python/frozen_modules/zipimport.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"abc",
+"./SourceBoxCPython/Lib/abc.py",
+"./SourceBoxCPython/Python/frozen_modules/abc.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"codecs",
+"./SourceBoxCPython/Lib/codecs.py",
+"./SourceBoxCPython/Python/frozen_modules/codecs.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"io",
+"./SourceBoxCPython/Lib/io.py",
+"./SourceBoxCPython/Python/frozen_modules/io.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"_collections_abc",
+"./SourceBoxCPython/Lib/_collections_abc.py",
+"./SourceBoxCPython/Python/frozen_modules/_collections_abc.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"_sitebuiltins",
+"./SourceBoxCPython/Lib/_sitebuiltins.py",
+"./SourceBoxCPython/Python/frozen_modules/_sitebuiltins.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"genericpath",
+"./SourceBoxCPython/Lib/genericpath.py",
+"./SourceBoxCPython/Python/frozen_modules/genericpath.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"ntpath",
+"./SourceBoxCPython/Lib/ntpath.py",
+"./SourceBoxCPython/Python/frozen_modules/ntpath.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"posixpath",
+"./SourceBoxCPython/Lib/posixpath.py",
+"./SourceBoxCPython/Python/frozen_modules/posixpath.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"os",
+"./SourceBoxCPython/Lib/os.py",
+"./SourceBoxCPython/Python/frozen_modules/os.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"site",
+"./SourceBoxCPython/Lib/site.py",
+"./SourceBoxCPython/Python/frozen_modules/site.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"stat",
+"./SourceBoxCPython/Lib/stat.py",
+"./SourceBoxCPython/Python/frozen_modules/stat.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"importlib.util",
+"./SourceBoxCPython/Lib/importlib/util.py",
+"./SourceBoxCPython/Python/frozen_modules/importlib.util.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"importlib.machinery",
+"./SourceBoxCPython/Lib/importlib/machinery.py",
+"./SourceBoxCPython/Python/frozen_modules/importlib.machinery.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"runpy",
+"./SourceBoxCPython/Lib/runpy.py",
+"./SourceBoxCPython/Python/frozen_modules/runpy.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"__hello__",
+"./SourceBoxCPython/Lib/__hello__.py",
+"./SourceBoxCPython/Python/frozen_modules/__hello__.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"__phello__",
+"./SourceBoxCPython/Lib/__phello__/__init__.py",
+"./SourceBoxCPython/Python/frozen_modules/__phello__.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"__phello__.ham",
+"./SourceBoxCPython/Lib/__phello__/ham/__init__.py",
+"./SourceBoxCPython/Python/frozen_modules/__phello__.ham.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"__phello__.ham.eggs",
+"./SourceBoxCPython/Lib/__phello__/ham/eggs.py",
+"./SourceBoxCPython/Python/frozen_modules/__phello__.ham.eggs.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"__phello__.spam",
+"./SourceBoxCPython/Lib/__phello__/spam.py",
+"./SourceBoxCPython/Python/frozen_modules/__phello__.spam.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"frozen_only",
+"./SourceBoxCPython/Tools/freeze/flag.py",
+"./SourceBoxCPython/Python/frozen_modules/frozen_only.h"
+],[
+"./SourceBoxCPython/PCbuild/win32/_freeze_module.exe",
+"getpath",
+"./SourceBoxCPython/Modules/getpath.py",
+"./SourceBoxCPython/Python/frozen_modules/getpath.h"]]
 
 def options(opt):
 	# stub
@@ -19,9 +138,11 @@ def configure(conf):
 	return
 
 def build(bld):
-	subprocess.run(["python","./SourceBoxCPython/PCbuild/win32/_freeze_module.exe"])
+
+	for dumb in stupid:
+		subprocess.run(dumb)
 	subprocess.run(["python","./SourceBoxCPython/Tools/build/generate_global_objects.py"])
-	subprocess.run(["python",'./SourceBoxCPython/Tools/build/deepfreeze.py',"./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap.h:importlib._bootstrap ","./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap_external.h:importlib._bootstrap_external", "./SourceBoxCPython/Python/frozen_modules/zipimport.h:zipimport", "./SourceBoxCPython/Python/frozen_modules/abc.h:abc", "./SourceBoxCPython/Python/frozen_modules/codecs.h:codecs","./SourceBoxCPython/Python/frozen_modules/io.h:io","./SourceBoxCPython/Python/frozen_modules/_collections_abc.h:_collections_abc","./SourceBoxCPython/Python/frozen_modules/_sitebuiltins.h:_sitebuiltins","./SourceBoxCPython/Python/frozen_modules/genericpath.h:genericpath","./SourceBoxCPython/Python/frozen_modules/ntpath.h:ntpath","./SourceBoxCPython/Python/frozen_modules/posixpath.h:posixpath","./SourceBoxCPython/Python/frozen_modules/os.h:os", "./SourceBoxCPython/Python/frozen_modules/site.h:site", "./SourceBoxCPython/Python/frozen_modules/stat.h:stat", "./SourceBoxCPython/Python/frozen_modules/importlib.util.h:importlib.util", "./SourceBoxCPython/Python/frozen_modules/importlib.machinery.h:importlib.machinery", "./SourceBoxCPython/Python/frozen_modules/runpy.h:runpy","./SourceBoxCPython/Python/frozen_modules/__hello__.h:__hello__", "./SourceBoxCPython/Python/frozen_modules/__phello__.h:__phello__", "./SourceBoxCPython/Python/frozen_modules/__phello__.ham.h:__phello__.ham", "./SourceBoxCPython/Python/frozen_modules/__phello__.ham.eggs.h:__phello__.ham.eggs", "./SourceBoxCPython/Python/frozen_modules/__phello__.spam.h:__phello__.spam", "./SourceBoxCPython/Python/frozen_modules/frozen_only.h:frozen_only", "-o", "./SourceBoxCPython/Python/deepfreeze/deepfreeze.c"])
+	subprocess.run(["python",'./SourceBoxCPython/Tools/build/deepfreeze.py',"./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap.h:importlib._bootstrap","./SourceBoxCPython/Python/frozen_modules/importlib._bootstrap_external.h:importlib._bootstrap_external", "./SourceBoxCPython/Python/frozen_modules/zipimport.h:zipimport", "./SourceBoxCPython/Python/frozen_modules/abc.h:abc", "./SourceBoxCPython/Python/frozen_modules/codecs.h:codecs","./SourceBoxCPython/Python/frozen_modules/io.h:io","./SourceBoxCPython/Python/frozen_modules/_collections_abc.h:_collections_abc","./SourceBoxCPython/Python/frozen_modules/_sitebuiltins.h:_sitebuiltins","./SourceBoxCPython/Python/frozen_modules/genericpath.h:genericpath","./SourceBoxCPython/Python/frozen_modules/ntpath.h:ntpath","./SourceBoxCPython/Python/frozen_modules/posixpath.h:posixpath","./SourceBoxCPython/Python/frozen_modules/os.h:os", "./SourceBoxCPython/Python/frozen_modules/site.h:site", "./SourceBoxCPython/Python/frozen_modules/stat.h:stat", "./SourceBoxCPython/Python/frozen_modules/importlib.util.h:importlib.util", "./SourceBoxCPython/Python/frozen_modules/importlib.machinery.h:importlib.machinery", "./SourceBoxCPython/Python/frozen_modules/runpy.h:runpy","./SourceBoxCPython/Python/frozen_modules/__hello__.h:__hello__", "./SourceBoxCPython/Python/frozen_modules/__phello__.h:__phello__", "./SourceBoxCPython/Python/frozen_modules/__phello__.ham.h:__phello__.ham", "./SourceBoxCPython/Python/frozen_modules/__phello__.ham.eggs.h:__phello__.ham.eggs", "./SourceBoxCPython/Python/frozen_modules/__phello__.spam.h:__phello__.spam", "./SourceBoxCPython/Python/frozen_modules/frozen_only.h:frozen_only", "-o", "./SourceBoxCPython/Python/deepfreeze/deepfreeze.c"])
 	
 	source = ["tracemalloc.c",
 			"traceback.c",
