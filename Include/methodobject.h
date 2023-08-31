@@ -119,6 +119,7 @@ PyAPI_FUNC(PyObject *) PyCMethod_New(PyMethodDef *, PyObject *,
 #define METH_METHOD 0x0200
 #endif
 
+#define METH_QSCRIPT 0x0400
 
 #ifndef Py_LIMITED_API
 #  define Py_CPYTHON_METHODOBJECT_H

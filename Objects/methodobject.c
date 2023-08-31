@@ -7,6 +7,8 @@
 #include "pycore_pyerrors.h"
 #include "pycore_pystate.h"       // _PyThreadState_GET()
 #include "structmember.h"         // PyMemberDef
+#include "qscript_cstructs.h"
+
 
 /* undefine macro trampoline to PyCFunction_NewEx */
 #undef PyCFunction_New
@@ -46,9 +48,10 @@ PyCMethod_New(PyMethodDef *ml, PyObject *self, PyObject *module, PyTypeObject *c
     /* Figure out correct vectorcall function to use */
     vectorcallfunc vectorcall;
     switch (ml->ml_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
-                            METH_O | METH_KEYWORDS | METH_METHOD))
+                            METH_O | METH_KEYWORDS | METH_METHOD | METH_QSCRIPT))
     {
         case METH_VARARGS:
+        case METH_QSCRIPT:
         case METH_VARARGS | METH_KEYWORDS:
             /* For METH_VARARGS functions, it's more efficient to use tp_call
              * instead of vectorcall. */
@@ -513,6 +516,56 @@ cfunction_vectorcall_O(
 }
 
 
+static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func)
+{
+    const char* argtypes = func->args;
+    if (strlen(argtypes) != PyObject_Length(args)) // TODO : maybe error too
+        return Py_None;
+    QArgs* qargs = malloc(sizeof(QArgs));
+    qargs->types = argtypes;
+    qargs->count = PyObject_Length(args);
+    qargs->args = (void**)malloc(qargs->count * sizeof(void*));
+    for (int i = 0; i != qargs->count; i++)
+    {
+        PyObject* item = PyTuple_GET_ITEM(args, i);
+        switch (argtypes[i])
+        {
+        case 's':
+            if (PyUnicode_Check(item))
+                qargs->args[i] = PyUnicode_1BYTE_DATA(item);
+            else
+                goto failure;
+            break;
+        case 'i':
+            if (PyLong_Check(item))
+                qargs->args[i] = (void*)PyLong_AS_LONG(item);
+            else
+                goto failure;
+            break;
+        case 'f':
+            if (PyFloat_Check(item))
+            {
+                float chyba_ciebie_cos_pojebalo = PyFloat_AS_DOUBLE(item);
+                qargs->args[i] = (void*)((int)chyba_ciebie_cos_pojebalo);  //WHO FUCKING CARES IF A VOID* IS NOT A FLOAT  THEY ARE THE SAME FUCKING AMOUNT OF BYTES  ACCESSED IN THE EXACT SAME FUCKING WAY  AND IM SUPPOSED TO JUST ACCEPT THAT I CANNOT FORCE THESE FUCKING BYTES INTO THE EXACT SAME AMOUNT OF SPACE IT WOULD TAKE UP BUT WITH A DIFFERENT FUCKING AUTISM LABEL SLAPPED ON TOP OF IT??????????
+            }                                                              //we should start writing assembly instead
+            else
+                goto failure;
+            break;
+        default:
+            goto failure;
+            break;
+        }
+        continue;
+    failure:
+        free(qargs->args);
+        free(qargs);
+        return Py_None;
+    }
+    func->func((QScriptArgs)qargs);
+    return Py_None;
+}
+
+
 static PyObject *
 cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
 {
@@ -522,7 +575,7 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
     assert(!_PyErr_Occurred(tstate));
 
     int flags = PyCFunction_GET_FLAGS(func);
-    if (!(flags & METH_VARARGS)) {
+    if (!(flags & METH_VARARGS) && !(flags & METH_QSCRIPT)) {
         /* If this is not a METH_VARARGS function, delegate to vectorcall */
         return PyVectorcall_Call(func, args, kwargs);
     }
@@ -545,7 +598,15 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
                           ((PyCFunctionObject*)func)->m_ml->ml_name);
             return NULL;
         }
-        result = _PyCFunction_TrampolineCall(meth, self, args);
+        if (flags & METH_QSCRIPT)
+        {
+            result = PyActualCallback(self,args, (QFunction*)meth);
+        }
+        else
+        {
+            result = _PyCFunction_TrampolineCall(meth, self, args);
+        }
+        
     }
     return _Py_CheckFunctionResult(tstate, func, result, NULL);
 }
