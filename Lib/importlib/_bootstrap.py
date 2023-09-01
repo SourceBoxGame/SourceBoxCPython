@@ -510,9 +510,11 @@ class ModuleSpec:
 
     def __init__(self, name, loader, *, origin=None, loader_state=None,
                  is_package=None):
+        print(name)
         self.name = name
         self.loader = loader
         self.origin = origin
+        print(loader_state)
         self.loader_state = loader_state
         self.submodule_search_locations = [] if is_package else None
         self._uninitialized_submodules = []
@@ -602,13 +604,14 @@ def spec_from_loader(name, loader, *, origin=None, is_package=None):
 
 def _spec_from_module(module, loader=None, origin=None):
     # This function is meant for use in _setup().
-    try:
-        spec = module.__spec__
-    except AttributeError:
-        pass
-    else:
-        if spec is not None:
-            return spec
+    #try:
+    #    spec = module.__spec__
+    #    print("using spec from module")
+    #except AttributeError:
+    #    pass
+    #else:
+    #    if spec is not None:
+    #        return spec
 
     name = module.__name__
     if loader is None:
@@ -940,6 +943,7 @@ class FrozenImporter:
     @classmethod
     def _fix_up_module(cls, module):
         spec = module.__spec__
+        print("the",module)
         state = spec.loader_state
         if state is None:
             # The module is missing FrozenImporter-specific values.
@@ -1053,6 +1057,7 @@ class FrozenImporter:
                                 origin=cls._ORIGIN,
                                 is_package=ispkg)
         filename, pkgdir = cls._resolve_filename(origname, fullname, ispkg)
+        print("what")
         spec.loader_state = type(sys.implementation)(
             filename=filename,
             origname=origname,
@@ -1097,6 +1102,7 @@ class FrozenImporter:
         vars(module).pop('__file__', None)
         if ispkg:
             module.__path__ = []
+        print("fixing up",fullname)
         cls._fix_up_module(module)
         return module
 
@@ -1416,6 +1422,7 @@ def _setup(sys_module, _imp_module):
     # Set up the spec for existing builtin/frozen modules.
     module_type = type(sys)
     for name, module in sys.modules.items():
+        print("namee",name)
         if isinstance(module, module_type):
             if name in sys.builtin_module_names:
                 loader = BuiltinImporter
@@ -1423,8 +1430,13 @@ def _setup(sys_module, _imp_module):
                 loader = FrozenImporter
             else:
                 continue
+            print("modle",module)
             spec = _spec_from_module(module, loader)
+            print("modle2",module)
+            print("spec",spec)
             _init_module_attrs(spec, module)
+            print("modle3",module)
+            print("spec2",spec)
             if loader is FrozenImporter:
                 loader._fix_up_module(module)
 

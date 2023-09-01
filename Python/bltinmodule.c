@@ -2001,28 +2001,28 @@ print as builtin_print
 Prints the values to a stream, or to sys.stdout by default.
 
 [clinic start generated code]*/
-
+__declspec(dllimport) void Warning(const char* pMsg, ...);
 static PyObject *
 builtin_print_impl(PyObject *module, PyObject *args, PyObject *sep,
                    PyObject *end, PyObject *file, int flush)
 /*[clinic end generated code: output=3cfc0940f5bc237b input=c143c575d24fe665]*/
 {
     int i, err;
-
+    /*
     if (file == Py_None) {
         PyThreadState *tstate = _PyThreadState_GET();
         file = _PySys_GetAttr(tstate, &_Py_ID(stdout));
         if (file == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
             return NULL;
-        }
+        }*/
 
         /* sys.stdout may be None when FILE* stdout isn't connected */
-        if (file == Py_None) {
+        /*if (file == Py_None) {
             Py_RETURN_NONE;
         }
-    }
-
+    }*/
+    err = 0;
     if (sep == Py_None) {
         sep = NULL;
     }
@@ -2045,31 +2045,40 @@ builtin_print_impl(PyObject *module, PyObject *args, PyObject *sep,
     for (i = 0; i < PyTuple_GET_SIZE(args); i++) {
         if (i > 0) {
             if (sep == NULL) {
-                err = PyFile_WriteString(" ", file);
+                Warning(" ");
             }
             else {
-                err = PyFile_WriteObject(sep, file, Py_PRINT_RAW);
+                Warning(PyBytes_AsString(PyUnicode_AsASCIIString(PyObject_Str(sep))));
             }
             if (err) {
                 return NULL;
             }
         }
-        err = PyFile_WriteObject(PyTuple_GET_ITEM(args, i), file, Py_PRINT_RAW);
+        PyObject* itme = PyTuple_GET_ITEM(args, i);
+        PyObject* unic = PyObject_Str(itme);
+        if (unic)
+            Warning(PyBytes_AsString(PyUnicode_AsASCIIString(unic)));
+        else
+        {
+            Warning("%llx\n", itme);
+            __debugbreak();
+        }
         if (err) {
             return NULL;
         }
     }
 
     if (end == NULL) {
-        err = PyFile_WriteString("\n", file);
+        Warning("\n");
     }
     else {
-        err = PyFile_WriteObject(end, file, Py_PRINT_RAW);
+        Warning(PyBytes_AsString(PyUnicode_AsASCIIString(PyObject_Str(end))));
     }
     if (err) {
         return NULL;
     }
 
+    /*
     if (flush) {
         PyObject *tmp = PyObject_CallMethodNoArgs(file, &_Py_ID(flush));
         if (tmp == NULL) {
@@ -2077,6 +2086,7 @@ builtin_print_impl(PyObject *module, PyObject *args, PyObject *sep,
         }
         Py_DECREF(tmp);
     }
+    */
 
     Py_RETURN_NONE;
 }

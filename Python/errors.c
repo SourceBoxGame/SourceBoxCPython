@@ -162,7 +162,8 @@ _PyErr_SetObject(PyThreadState *tstate, PyObject *exception, PyObject *value)
 {
     PyObject *exc_value;
     PyObject *tb = NULL;
-    Warning("%s\n",PyBytes_AsString(PyUnicode_AsASCIIString(PyObject_Repr(value))));
+    Warning("%s\n",PyBytes_AsString(PyUnicode_AsASCIIString((value->ob_type->tp_str)(value))));
+    
     if (exception != NULL &&
         !PyExceptionClass_Check(exception)) {
         _PyErr_Format(tstate, PyExc_SystemError,

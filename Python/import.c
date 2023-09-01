@@ -2077,7 +2077,7 @@ find_frozen(PyObject *nameobj, struct frozen_info *info)
 static PyObject *
 unmarshal_frozen_code(PyInterpreterState *interp, struct frozen_info *info)
 {
-    if (info->get_code && _Py_IsMainInterpreter(interp)) {
+    if (info->get_code) {
         PyObject *code = info->get_code();
         assert(code != NULL);
         return code;
