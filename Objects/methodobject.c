@@ -514,8 +514,7 @@ cfunction_vectorcall_O(
     _Py_LeaveRecursiveCallTstate(tstate);
     return result;
 }
-
-
+extern void* current_interface;
 static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func)
 {
     const char* argtypes = func->args;
@@ -546,8 +545,20 @@ static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* fun
             if (PyFloat_Check(item))
             {
                 float chyba_ciebie_cos_pojebalo = PyFloat_AS_DOUBLE(item);
-                qargs->args[i] = (void*)((int)chyba_ciebie_cos_pojebalo);  //WHO FUCKING CARES IF A VOID* IS NOT A FLOAT  THEY ARE THE SAME FUCKING AMOUNT OF BYTES  ACCESSED IN THE EXACT SAME FUCKING WAY  AND IM SUPPOSED TO JUST ACCEPT THAT I CANNOT FORCE THESE FUCKING BYTES INTO THE EXACT SAME AMOUNT OF SPACE IT WOULD TAKE UP BUT WITH A DIFFERENT FUCKING AUTISM LABEL SLAPPED ON TOP OF IT??????????
-            }                                                              //we should start writing assembly instead
+                qargs->args[i] = *(void**)((float*)(&chyba_ciebie_cos_pojebalo));  //WHO FUCKING CARES IF A VOID* IS NOT A FLOAT  THEY ARE THE SAME FUCKING AMOUNT OF BYTES  ACCESSED IN THE EXACT SAME FUCKING WAY  AND IM SUPPOSED TO JUST ACCEPT THAT I CANNOT FORCE THESE FUCKING BYTES INTO THE EXACT SAME AMOUNT OF SPACE IT WOULD TAKE UP BUT WITH A DIFFERENT FUCKING AUTISM LABEL SLAPPED ON TOP OF IT??????????
+            }                                                                      //we should start writing assembly instead
+            else
+                goto failure;
+            break;
+        case 'p':
+            if (PyCallable_Check(item))
+            {
+                Py_INCREF(item);
+                QCallback* callback = malloc(sizeof(QCallback));
+                callback->callback = item;
+                callback->lang = current_interface;
+                qargs->args[i] = callback;
+            }
             else
                 goto failure;
             break;
