@@ -514,6 +514,7 @@ cfunction_vectorcall_O(
     _Py_LeaveRecursiveCallTstate(tstate);
     return result;
 }
+
 extern void* current_interface;
 static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func)
 {
@@ -549,6 +550,12 @@ static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* fun
             }                                                                      //we should start writing assembly instead
             else
                 goto failure;
+            break;
+        case 'b':
+            if (PyBool_Check(item))
+            {
+                qargs->args[i] = (void*)(PyLong_AS_LONG(item) != 0);
+            }
             break;
         case 'p':
             if (PyCallable_Check(item))
