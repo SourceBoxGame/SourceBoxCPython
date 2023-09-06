@@ -579,8 +579,21 @@ static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* fun
         free(qargs);
         return Py_None;
     }
-    func->func((QScriptArgs)qargs);
-    return Py_None;
+    QReturn* ret = (QReturn*)(func->func((QScriptArgs)qargs));
+
+    switch (ret->type)
+    {
+    case QType_Int:
+        return PyLong_FromLong((int)(ret->value));
+    case QType_Float:
+        return PyFloat_FromDouble((double)(*(float*)(&ret->value)));
+    case QType_String:
+        return PyUnicode_FromString((const char*)(ret->value));
+    case QType_Bool:
+        return PyBool_FromLong(ret->value != 0);
+    default:
+        return Py_None;
+    }
 }
 
 
