@@ -48,10 +48,11 @@ PyCMethod_New(PyMethodDef *ml, PyObject *self, PyObject *module, PyTypeObject *c
     /* Figure out correct vectorcall function to use */
     vectorcallfunc vectorcall;
     switch (ml->ml_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
-                            METH_O | METH_KEYWORDS | METH_METHOD | METH_QSCRIPT))
+                            METH_O | METH_KEYWORDS | METH_METHOD | METH_QSCRIPT | METH_OBJQSCRIPT))
     {
         case METH_VARARGS:
         case METH_QSCRIPT:
+        case METH_OBJQSCRIPT:
         case METH_VARARGS | METH_KEYWORDS:
             /* For METH_VARARGS functions, it's more efficient to use tp_call
              * instead of vectorcall. */
@@ -515,19 +516,28 @@ cfunction_vectorcall_O(
     return result;
 }
 
+typedef struct 
+{
+    PyObject_HEAD
+    QObject* obj;
+} Python_QObject;
+
 extern void* current_interface;
-static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func)
+static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func, bool isself)
 {
     const char* argtypes = func->args;
     if (strlen(argtypes) != PyObject_Length(args)) // TODO : maybe error too
         return Py_None;
+    int addself = isself;
     QArgs* qargs = malloc(sizeof(QArgs));
     qargs->types = argtypes;
     qargs->count = PyObject_Length(args);
-    qargs->args = (void**)malloc(qargs->count * sizeof(void*));
-    for (int i = 0; i != qargs->count; i++)
+    qargs->args = (void**)malloc((qargs->count + addself) * sizeof(void*));
+    if (isself)
+        qargs->args[0] = ((Python_QObject*)self)->obj;
+    for (int i = addself; i != qargs->count + addself; i++)
     {
-        PyObject* item = PyTuple_GET_ITEM(args, i);
+        PyObject* item = PyTuple_GET_ITEM(args, i - addself);
         switch (argtypes[i])
         {
         case 's':
@@ -629,9 +639,9 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
                           ((PyCFunctionObject*)func)->m_ml->ml_name);
             return NULL;
         }
-        if (flags & METH_QSCRIPT)
+        if ((flags & METH_QSCRIPT) || (flags & METH_OBJQSCRIPT))
         {
-            result = PyActualCallback(self,args, (QFunction*)meth);
+            result = PyActualCallback(self,args, (QFunction*)meth, flags & METH_OBJQSCRIPT);
         }
         else
         {
