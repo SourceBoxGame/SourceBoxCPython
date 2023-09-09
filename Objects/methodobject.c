@@ -523,7 +523,7 @@ typedef struct
 } Python_QObject;
 
 extern void* current_interface;
-static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func, bool isself)
+PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func, bool isself)
 {
     const char* argtypes = func->args;
     if (strlen(argtypes) != PyObject_Length(args)) // TODO : maybe error too
@@ -531,14 +531,14 @@ static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* fun
     int addself = isself;
     QArgs* qargs = malloc(sizeof(QArgs));
     qargs->types = argtypes;
-    qargs->count = PyObject_Length(args);
+    qargs->count = PyObject_Length(args)+addself;
     qargs->args = (void**)malloc((qargs->count + addself) * sizeof(void*));
     if (isself)
         qargs->args[0] = ((Python_QObject*)self)->obj;
-    for (int i = addself; i != qargs->count + addself; i++)
+    for (int i = addself; i != qargs->count; i++)
     {
         PyObject* item = PyTuple_GET_ITEM(args, i - addself);
-        switch (argtypes[i])
+        switch (argtypes[i - addself])
         {
         case 's':
             if (PyUnicode_Check(item))
@@ -555,9 +555,9 @@ static PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* fun
         case 'f':
             if (PyFloat_Check(item))
             {
-                float chyba_ciebie_cos_pojebalo = PyFloat_AS_DOUBLE(item);
-                qargs->args[i] = *(void**)((float*)(&chyba_ciebie_cos_pojebalo));  //WHO FUCKING CARES IF A VOID* IS NOT A FLOAT  THEY ARE THE SAME FUCKING AMOUNT OF BYTES  ACCESSED IN THE EXACT SAME FUCKING WAY  AND IM SUPPOSED TO JUST ACCEPT THAT I CANNOT FORCE THESE FUCKING BYTES INTO THE EXACT SAME AMOUNT OF SPACE IT WOULD TAKE UP BUT WITH A DIFFERENT FUCKING AUTISM LABEL SLAPPED ON TOP OF IT??????????
-            }                                                                      //we should start writing assembly instead
+                float chyba_ciebie_cos_pojebalo = (float)PyFloat_AS_DOUBLE(item);
+                qargs->args[i] = (void*)*(int*)(&chyba_ciebie_cos_pojebalo);  //WHO FUCKING CARES IF A VOID* IS NOT A FLOAT  THEY ARE THE SAME FUCKING AMOUNT OF BYTES  ACCESSED IN THE EXACT SAME FUCKING WAY  AND IM SUPPOSED TO JUST ACCEPT THAT I CANNOT FORCE THESE FUCKING BYTES INTO THE EXACT SAME AMOUNT OF SPACE IT WOULD TAKE UP BUT WITH A DIFFERENT FUCKING AUTISM LABEL SLAPPED ON TOP OF IT??????????
+            }                                                                   //we should start writing assembly instead
             else
                 goto failure;
             break;
@@ -616,7 +616,7 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
     assert(!_PyErr_Occurred(tstate));
 
     int flags = PyCFunction_GET_FLAGS(func);
-    if (!(flags & METH_VARARGS) && !(flags & METH_QSCRIPT)) {
+    if (!(flags & METH_VARARGS) && !(flags & METH_QSCRIPT) && !(flags & METH_OBJQSCRIPT)) {
         /* If this is not a METH_VARARGS function, delegate to vectorcall */
         return PyVectorcall_Call(func, args, kwargs);
     }
@@ -639,9 +639,9 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
                           ((PyCFunctionObject*)func)->m_ml->ml_name);
             return NULL;
         }
-        if ((flags & METH_QSCRIPT) || (flags & METH_OBJQSCRIPT))
+        if ((flags & METH_QSCRIPT) | (flags & METH_OBJQSCRIPT))
         {
-            result = PyActualCallback(self,args, (QFunction*)meth, flags & METH_OBJQSCRIPT);
+            result = PyActualCallback(self,args, (QFunction*)meth, (flags & METH_OBJQSCRIPT) != 0);
         }
         else
         {

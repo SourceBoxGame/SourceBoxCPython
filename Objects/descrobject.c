@@ -309,6 +309,35 @@ method_enter_call(PyThreadState *tstate, PyObject *func)
     return (funcptr)((PyMethodDescrObject *)func)->d_method->ml_meth;
 }
 
+#include "qscript_cstructs.h"
+
+extern PyObject* PyActualCallback(PyObject* self, PyObject* args, QFunction* func, bool isself);
+
+static PyObject*
+method_vectorcall_OBJQSCRIPT(
+    PyObject* func, PyObject* const* args, size_t nargsf, PyObject* kwnames)
+{
+    PyThreadState* tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, kwnames)) {
+        return NULL;
+    }
+    PyObject* argstuple = _PyTuple_FromArray(args + 1, nargs - 1);
+    if (argstuple == NULL) {
+        return NULL;
+    }
+    PyCFunction meth = (PyCFunction)method_enter_call(tstate, func);
+    if (meth == NULL) {
+        Py_DECREF(argstuple);
+        return NULL;
+    }
+    PyObject* result = PyActualCallback(
+        args[0], argstuple, (QFunction*)meth, true);
+    Py_DECREF(argstuple);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
 /* Now the actual vectorcall functions */
 static PyObject *
 method_vectorcall_VARARGS(
@@ -921,8 +950,11 @@ PyDescr_NewMethod(PyTypeObject *type, PyMethodDef *method)
     /* Figure out correct vectorcall function to use */
     vectorcallfunc vectorcall;
     switch (method->ml_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
-                                METH_O | METH_KEYWORDS | METH_METHOD))
+                                METH_O | METH_KEYWORDS | METH_METHOD | METH_OBJQSCRIPT))
     {
+        case METH_OBJQSCRIPT:
+            vectorcall = method_vectorcall_OBJQSCRIPT;
+            break;
         case METH_VARARGS:
             vectorcall = method_vectorcall_VARARGS;
             break;
